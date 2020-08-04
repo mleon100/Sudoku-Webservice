@@ -24,7 +24,10 @@ class Sudoku(object):
         #self.playable[x,y]=formated_num.rstrip()
         #self.playable[x,y]=num
         return(self.playable)
-
+    def erase_entry(self,x=None, y=None):
+        self.playable[x,y]='x'
+        return(self.playable)
+            
     def get_original(self):
         return(self.start.copy())
     def get_solution(self):

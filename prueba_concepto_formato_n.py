@@ -12,7 +12,18 @@ C= ''.join(C)
 print(C)
 limit=["="]*len(C)
 limit=''.join(limit)
-print(limit)
+#print(limit)
 
-print(((36**0.5)%1)==0)
+#print(((36**0.5)%1)==0)
 
+d= '1,2,3,4'
+#print(d.isnumeric())
+e=list(d)
+#print(e)
+f='1234'
+g=list(f)
+h=str(g)
+
+print(h,h.isnumeric())
+for i in range(len(h)):
+    print(h[i])

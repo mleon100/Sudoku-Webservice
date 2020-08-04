@@ -47,6 +47,50 @@ def original_sud_display(original_sud,S):
         S.print('original')
     return()
 
+# validates input as a 2 digit ordered pair in the correct range, and if number is erasable it erases it
+def erase_entry(user_input,S,size):
+    import string
+
+    all_letters= string.ascii_letters
+    input_check=False
+
+    while not input_check:
+        user_input=list(user_input)
+        eliminate= ','
+
+        while eliminate in user_input:
+            user_input.pop(user_input.index(','))
+        
+        non_numeric_flag=False
+        for i in range(len(user_input)):
+            if user_input[i] not in all_letters:
+                user_input[i]=int(user_input[i])
+                user_input[i]= abs(user_input[i])
+
+            else:
+                non_numeric_flag=True
+        
+         
+        if non_numeric_flag:
+            print('ingresa numeros no letras')
+            user_input=input()
+
+        elif len(user_input) !=2:
+            print('ingresa un par ordendo con enteros entre 1 y ',size)
+            user_input=input()
+        #elif (user_input[0]<1 or user_input[0]>size) or (user_input[1]<1 or user_input[1]>size) or (user_input[0]//10 !=0) or (user_input[1]//10!=0):
+         #   print('ingresa enteros entre 1 y ',size)
+          #  user_input=input()
+        else:
+            input_check=True
+    
+    if "'" not in S.playable[user_input[0]-1, user_input[1]-1]:
+        print('numero original, no puede ser modiciado')
+    else:
+        S.erase_entry(user_input[0]-1, user_input[1]-1)
+    S.print('playable')
+    return()
+
 # validates user input for correct logic working, returns bool
 def input_validation(user_input):
     user_input=list(user_input)

@@ -3,14 +3,19 @@ import time
 from datetime import datetime
 import sys
 
-instrucciones= 'Bienvenido al juego de Sudoku, ingresa el nivel de dificultad. nivel 10 es el mas DIFICIL y 1 el mas FACIL'
-print(instrucciones)
-dificultad=int(input())
 
 # print('')
 # print('ingresa tamaño (size) de sudoku deseado')
 # #size=abs(int(input()))
-size=abs(int(sys.argv[1]))
+try:
+    size=abs(int(sys.argv[1]))
+except:
+    size=9
+
+instrucciones= 'Bienvenido al juego de Sudoku, ingresa el nivel de dificultad. nivel 10 es el mas DIFICIL y 1 el mas FACIL'
+print(instrucciones)
+dificultad=int(input())
+    
 
 print('')
 inicial_cond= game_initialicer(dificulty_filter(dificultad),size_filter(size))
@@ -41,8 +46,15 @@ while alarm!='qq':
 
     original_sud= str(input())
     original_sud_display(original_sud,inicial_cond[0])
-    
-    
+
+    # Reset value option
+    print('si deseas resetear uno de tus numeros anteriores presiona la tecla c, para continuar presiona cualquier otra tecla')
+    if input() == 'c':
+        print('ingresa la posicion que deseas resetear de la forma x,y')
+        erase_position= input()
+        erase_entry(erase_position,inicial_cond[0],inicial_cond[1])
+        
+       
     # user input validation and procesing
     valid_input=False
     while not valid_input:
