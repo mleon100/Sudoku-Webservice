@@ -12,6 +12,15 @@ class Sudoku(object):
         self.playable= self.start.copy()
         self.size=size
         self.dificulty_index=self.sudoku[2]
+        self.editable_positions=[]
+    
+    def get_editable_positions(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.solution[i,j]!=self.start[i,j]:
+                    self.editable_positions.append(position_mapping(self.size,0)[i,j])
+        return(self.editable_positions.copy())
+
         
     
     def reset_dificulty(self,new_dificulty=6):

@@ -402,6 +402,31 @@ def sudoku_creator(size,dificulty):
                
     return(unfilled_sudoku,filled_sudoku,dificulty_index[dificulty])
 
+def time_format(seconds):
+    seconds= int(seconds//1)
+    form_sec= seconds%60
+    Min= seconds//60
+    form_min= Min%60
+    form_hour= Min//60
+    
+    if form_sec<10:
+        str_sec='0'+str(form_sec)
+    else:
+        str_sec= str(form_sec)
+
+    if form_min<10:
+        str_min='0'+str(form_min)
+    else:
+        str_min= str(form_min)
+    
+    if form_hour<10:
+        str_hour='0'+ str(form_hour)
+    else:
+        str_hour=str(form_hour)
+
+    return(str_hour+':'+str_min+':'+str_sec)
+
+
 
 # dificulty=1
 # A=sudoku_creator(4,dificulty)
