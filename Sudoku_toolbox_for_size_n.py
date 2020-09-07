@@ -117,6 +117,15 @@ def plane_search(matrix_temp,size,position):
 
 
     position_pair=(position_mapping(size,1))[position]
+    
+    # eliminate="'"
+    # if eliminate in  matrix_temp[position_pair[0],position_pair[1]]:
+    #     print('te encontre hpta')
+    #     matrix_temp[position_pair[0],position_pair[1]]= list(matrix_temp[position_pair[0],position_pair[1]])
+    #     matrix_temp[position_pair[0],position_pair[1]].pop(matrix_temp[position_pair[0],position_pair[1]].index("'"))
+    #     str(matrix_temp[position_pair[0],position_pair[1]])
+    
+    
 
     #limites de busqueda, depdnedientes de size solamente
     left= position_pair[1]
@@ -156,7 +165,7 @@ def plane_search(matrix_temp,size,position):
         if row_counter==up:
             rowU_cond=True
     
-    # print('row ', rowD_cond and rowU_cond)
+    #print('row ', rowD_cond and rowU_cond)
     # COLUMN ANALISIS searches in the columns of a row
 
     #border conditions
@@ -185,7 +194,7 @@ def plane_search(matrix_temp,size,position):
         if col_counter==left:
             columnL_cond=True
     
-    # print('col ', columnL_cond and columnR_cond)
+    #print('col ', columnL_cond and columnR_cond)
     #sector analisis
       
     for i in range(size):
@@ -210,7 +219,7 @@ def plane_search(matrix_temp,size,position):
         sector_counter=sector_counter+1
         if sector_counter==size:
             sector_cond=True
-    # print('sector ', sector_cond)
+    #print('sector ', sector_cond)
     
     #final evaluation of conditions
     if (rowU_cond and rowD_cond and columnL_cond and columnR_cond and sector_cond):

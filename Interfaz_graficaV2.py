@@ -1,8 +1,10 @@
 from tkinter import *
 from Sudoku_toolbox_for_size_n import *
+import numpy as np
 from sudoku_size_n import *
 from Controller_size_n import *
 import time
+import json
 
 class Sudkoku_menu_button(object):
     def __init__(self, master, save_command=None, surrender_command=None):
@@ -22,19 +24,16 @@ class Sudkoku_menu_button(object):
         self.menu_object.add_command(label='Save and Exit', command=lambda :self.save_command())
         self.menu_object.add_command(label='Surrender', command=lambda :self.surrender_command())
 
-       
-
-        
-        
-
-
-
 class Sudoku_timer(object):
-    def __init__(self, master):
+    def __init__(self, master, is_loaded=False, loaded_time=0):
         self.clock_master=master
         self.ref_time=time.time()
+        self.seconds_passed=None
+        self.is_loaded= is_loaded
+        self.loaded_time=loaded_time
         self.timer_display= Label(self.clock_master, bg='gray32', fg='snow', text= '00:00:00', padx=10)
         self.timer_display.pack()
+        
         
         self.run_time()
               
@@ -42,8 +41,12 @@ class Sudoku_timer(object):
     def run_time(self):
         
         instant_time= time.time()
-        seconds_passed= instant_time-self.ref_time
-        self.timer_display['text']= time_format(seconds_passed)
+        if not self.is_loaded:
+            self.seconds_passed= instant_time-self.ref_time
+        else:
+            self.seconds_passed= instant_time-self.ref_time+ int(self.loaded_time)
+
+        self.timer_display['text']= time_format(self.seconds_passed)
         self.clock_master.after(1000, self.run_time)
         #print(time_format(seconds_passed))
                  
@@ -147,7 +150,7 @@ class Reset_button(object):
 
 class Sudoku_button (object):
        
-    def __init__(self,master,value=1, position=1, on_click_handler=None):
+    def __init__(self,master,value=1, position=1, on_click_handler=None, is_loaded=False):
 
         self.master=master
         self.value=value
@@ -156,6 +159,7 @@ class Sudoku_button (object):
         self.first_click=True
         self.clicked= False
         self.on_click_handler= on_click_handler
+        self.is_loaded=is_loaded
        
     def Event_button_clicked(self):
         self.clicked=True
@@ -175,8 +179,16 @@ class Sudoku_button (object):
             self.button_object=Button(self.master, text=self.value, bg='gray92', padx=5, command=lambda : self.Event_button_clicked())
 
         # Desactivar casillas no editables
-        if self.value!='x':
+        if self.value!='x' and  (not self.is_loaded):
             self.button_object['state']='disabled'
+
+        elif self.is_loaded:
+            #self.button_object['state']='active'
+            self.button_object['fg']= 'snow'
+            self.button_object['bg']= 'RoyalBlue'
+           
+
+
         return()
 
 class Button_matrix(object):
@@ -208,7 +220,13 @@ class Button_matrix(object):
                 # col
                 for k in range(m):
                     current_position=position_submatrix[j,k]
-                    current_button= Sudoku_button(frame_list[i-1], self.Sudoku.playable[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]], current_position, lambda : self.Button_event_handler())
+                    if self.Sudoku.playable[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]]== self.Sudoku.start[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]]:
+                        #print('same')
+                        current_button= Sudoku_button(frame_list[i-1], self.Sudoku.playable[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]], current_position, lambda : self.Button_event_handler(), False)
+                    else:
+                        #print('diferent')
+                        current_button= Sudoku_button(frame_list[i-1], self.Sudoku.playable[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]], current_position, lambda : self.Button_event_handler(), True)
+
                     current_button.button_creator()
                                      
                     # storage of button position as buttons are creted
@@ -242,7 +260,7 @@ class Button_matrix(object):
 
 class Sudoku_GUI(object):
       
-    def __init__(self,size=9,root=None,S=None):
+    def __init__(self,size=9,root=None,S=None, saved_time=0):
         
         self.root=root
         self.Sudoku=S
@@ -259,6 +277,11 @@ class Sudoku_GUI(object):
         self.last_button=None
         self.penultimate_button=None
         self.first_click= True
+        self.storage_data={}
+        self.save_name=None
+        self.enter_name_entry=None
+        self.saving_window=None
+        self.saved_time=saved_time
      
     def Button_matrix_init(self):
 
@@ -327,6 +350,12 @@ class Sudoku_GUI(object):
             self.last_button[0]['bg']='gray92'
             self.last_button[2]= 'x'
             self.num_entry.entry_counter=self.num_entry.entry_counter-1
+
+            # resetea self.Sudoku.playable
+            self.Sudoku.erase_entry(position_mapping(self.Sudoku.size,1)[self.last_button[1]][0], position_mapping(self.Sudoku.size,1)[self.last_button[1]][1])
+            # print('')
+            # print(self.Sudoku.get_playable())
+
             self.num_entry.Reset_button.disable_R_button()
 
     def num_entry_init(self):
@@ -363,27 +392,136 @@ class Sudoku_GUI(object):
                     self.num_entry.entry_counter=self.num_entry.entry_counter+1
                     self.last_button[0]['text']=str(self.num_entry.user_input[2])
                     self.last_button[2]= str(self.num_entry.user_input[2])
+                    self.last_button[2]= str(self.num_entry.user_input[2])
                     self.last_button[0]['fg']='snow'
                     self.last_button[0]['bg']='RoyalBlue'
+
+                    #print(self.num_entry.user_input[0], self.num_entry.user_input[1], self.num_entry.user_input[2])
+                    # print('')
+                    # print(self.Sudoku.get_playable())
+                    # print('')
+
+                    self.Sudoku.place_num(self.num_entry.user_input[0], self.num_entry.user_input[1], self.num_entry.user_input[2])
+                    # print(self.Sudoku.get_playable())
+
                    
                     if self.num_entry.entry_counter==self.Sudoku.dificulty_index:
                         self.num_entry.victory_alarm=True
                         print('GANASTE CTM!!!') 
     
-    # def menu_save_command(self):
-    #     pass
+    def menu_save_command(self):
+
+        button_data={}
+
+        for i in range(1,int(self.Sudoku.size**2),1):
+
+            button_data[i]=[self.button_matrix.position_Sudoku_button_dict[i].button_object['bg'], str(self.button_matrix.position_Sudoku_button_dict[i].value), str(self.button_matrix.position_Sudoku_button_dict[i].position)]
+
+
+        self.storage_data['time']=self.timer.seconds_passed
+        #self.storage_data['sudoku']=self.Sudoku
+        #self.storage_data['game']=self.button_matrix.position_Sudoku_button_dict
+        #self.storage_data['game']=button_data
+
+        S_start=list(self.Sudoku.get_original().flatten())
+        S_solution=list(self.Sudoku.get_solution().flatten())
+        S_playable=list(self.Sudoku.get_playable().flatten())
+        S_size=int(self.Sudoku.size)
+        S_dificulty=int(self.Sudoku.dificulty)
+        S_dificulty_index=int(self.Sudoku.dificulty_index)
+
+        self.storage_data['S_start']=S_start
+        self.storage_data['S_solution']=S_solution
+        self.storage_data['S_playable']=S_playable
+        self.storage_data['S_size']=S_size
+        self.storage_data['S_dificulty']=S_dificulty
+        self.storage_data['S_dificulty_index']=S_dificulty_index
+
+               
+
+      
+        self.saving_window= Toplevel()
+        self.saving_window.minsize(300,100)
+        self.saving_window.title('Save Game')
+
+        Label(self.saving_window, text='Provide a name to create a new file').pack()
+        self.enter_name_entry= Entry(self.saving_window)
+        self.enter_name_entry.pack()
+        enter_button= Button(self.saving_window, text='ENTER', bg='blue2', fg='snow', command= lambda :self.menu_save_support_function())
+        enter_button.pack()
+              
+
+    def menu_save_support_function(self):
+
+        path= "C:/Users/Mauricio León/Desktop/MAURICIO/PROGRAMACION/Proyecto Sudoku/Saved_games/"
+
+        self.save_name= self.enter_name_entry.get()
+        
+        with open(path + self.save_name + '.json', 'w',) as FILE:
+            json.dump(self.storage_data, FILE)
+
+        self.saving_window.withdraw()
+        self.root.destroy()
+
+        #print(self.save_name)
+    
+    def menu_surrender_command(self):
+        surrender_window= Toplevel()
+        surrender_window.title('Surrender')
+
+        size= self.Sudoku.size
+        buttonmatrix_master_frame= Frame(surrender_window, bd=2, bg= 'MistyRose4')    
+        m=int(size**0.5)
+        frame_list=[]
+                
+        # submatrix frame creator
+        for i in range(1,size+1,1):
+
+            position_submatrix=sector_mapping(size)[i]
+            frame_list.append(Frame(buttonmatrix_master_frame, bd=3, bg= 'MistyRose4'))
+
+            # row
+            for j in range(m):
+                # col
+                for k in range(m):
+                    current_position=position_submatrix[j,k]
+                    if current_position in self.Sudoku.get_editable_positions():
+                        current_button= Button(frame_list[i-1], text= str(self.Sudoku.solution[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]]), bg='red2' , fg='snow', padx=5)
+                    else:
+                        current_button= Button(frame_list[i-1], text= str(self.Sudoku.solution[position_mapping(size,1)[current_position][0],position_mapping(size,1)[current_position][1]]), padx=5)
+                              
+                    current_button.grid(row=j,column=k)
+               
+        # creates grid from the frame list
+        i=0
+        for j in range(m):
+            for k in range(m):
+                frame_list[i].grid(row=k, column=j)
+                i=i+1
+        
+        Label(surrender_window, text= 'Are You Sure You Want to SURRENDER?').pack()
+        Button(surrender_window, text= 'SURRENDER', bg='red2', fg='snow', command= lambda : buttonmatrix_master_frame.pack()).pack()
+                    
 
     def menu_init(self):
 
-        self.menu= Sudkoku_menu_button(self.root)
+        self.menu= Sudkoku_menu_button(self.root, lambda : self.menu_save_command(), lambda :self.menu_surrender_command())
         self.menu.menu_creator()
-                     
+
+    #def load_game(self):
+
+
     def Construct(self):
         
         self.num_entry_init()
         self.Button_matrix_init()
         self.menu_init()
-        self.timer= Sudoku_timer(self.clock_frame)
+
+        if self.saved_time!=0:
+            self.timer=Sudoku_timer(self.clock_frame,True, self.saved_time)
+        else:
+                       
+            self.timer= Sudoku_timer(self.clock_frame)
         self.clock_frame.grid(row=0, column=1)
         self.master_frame.pack()
 
@@ -394,7 +532,7 @@ class Sudoku_GUI(object):
 # root.title('SUDOKU GAME')
 # #root.geometry('400x400')
 
-# S=Sudoku(9,5)
+# S=Sudoku(9,7)
 # size=S.size
 
 # Gui= Sudoku_GUI(size,root,S)

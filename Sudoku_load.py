@@ -4,15 +4,15 @@ from Mformat_size_n import matrix_format
 
 
 
-class Sudoku(object):
-    def __init__(self,size=9,dificulty=6):
-        self.sudoku= sudoku_creator(size,dificulty)
-        self.start= self.sudoku[0]
-        self.solution= self.sudoku[1]
-        self.playable= self.start.copy()
-        self.size=size
-        self.dificulty_index=self.sudoku[2]
-        self.dificulty=dificulty
+class Sudoku_load(object):
+    def __init__(self,loaded_data=None):
+        #self.sudoku= sudoku_creator(size,dificulty)
+        self.start= loaded_data[0]
+        self.solution= loaded_data[1]
+        self.playable= loaded_data[2]
+        self.size=loaded_data[3]
+        self.dificulty=loaded_data[4]
+        self.dificulty_index=loaded_data[5]
         self.editable_positions=[]
     
     def get_editable_positions(self):
@@ -29,9 +29,7 @@ class Sudoku(object):
         #return(self.empty)
     def place_num(self,x=0,y=0,num=1):
 
-        formated_num=str(num)
-
-        #formated_num=str(num)+"'"    
+        formated_num=str(num)+"'"    
         self.playable[x,y]=formated_num.rstrip()
         #self.playable[x,y]=formated_num.rstrip()
         #self.playable[x,y]=num
@@ -79,14 +77,3 @@ class Sudoku(object):
 #     print('')
 #     print('kkck?')
 
-
-
-# K=input()
-# K=list(K)
-# kk=','
-# while kk in K:
-#     K.pop(K.index(','))
-# print(K)
-
-    
-    

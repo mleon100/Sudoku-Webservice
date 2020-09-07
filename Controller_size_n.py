@@ -145,15 +145,22 @@ def sudoku_rule_test(S,size,user_input):
     return(valid)
 
 def sudoku_rule_test_GUI(S,size,user_input):
+    # print('')
+    # print(S.get_playable())
     test_matrix=S.get_playable()
     test_matrix[user_input[0],user_input[1]]= user_input[2]
     test_position= position_mapping(size,0)[(user_input[0],user_input[1])]
+    # print(test_position)
+    # print('')
+    # print(test_matrix)
+    #plane_search(test_matrix,size,test_position)
 
     valid=False
 
     
     if (S.get_playable()[user_input[0],user_input[1]] =='x') and (plane_search(test_matrix,size,test_position)):
         valid=True
+        #print(valid)
     return(valid)
 
 
