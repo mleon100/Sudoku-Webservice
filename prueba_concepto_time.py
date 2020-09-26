@@ -26,6 +26,7 @@
 import tkinter as tk
 import time
 
+
 class App():
     def __init__(self):
         self.root = tk.Tk()
@@ -40,3 +41,4 @@ class App():
         self.root.after(1000, self.update_clock)
 
 app=App()
+
